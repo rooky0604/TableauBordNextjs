@@ -21,9 +21,9 @@ export default function SideNav() {
         onClick={() => setIsOpen(!isOpen)}
       >
         {isOpen ? (
-          <ArrowLeftToLine size={16} />
+          <ArrowLeftToLine size={17} />
         ) : (
-          <ArrowRightToLine size={16} />
+          <ArrowRightToLine size={17} />
         )}
       </button>
       <aside
