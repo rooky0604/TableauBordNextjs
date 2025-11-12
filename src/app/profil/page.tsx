@@ -1,4 +1,4 @@
-export default function TicketPage() {
+export default function profil() {
   return (
     <section>
       <h1>Bienvenue sur la page de profil</h1>
