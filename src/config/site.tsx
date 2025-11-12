@@ -15,12 +15,17 @@ export const siteConfig = {
 export const navigations: Navigation[] = [
   {
     icon: Gauge,
-    name: "Dashboard",
+    name: "Tableau de bord",
     href: "/",
   },
   {
     icon: MessagesSquare,
     name: "Ticket",
     href: "/ticket",
+  },
+  {
+    icon: MessagesSquare,
+    name: "Mon profil",
+    href: "/profil",
   },
 ];
