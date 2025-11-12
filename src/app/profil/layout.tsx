@@ -8,7 +8,7 @@ export default function ProfilLayout({
 }) {
   return (
     <>
-      <TopNav title="Ticket" />
+      <TopNav title="Mon profil" />
       <main>
         <Container>{children}</Container>
       </main>
