@@ -13,8 +13,8 @@ export type Navigation = {
 };
 
 export const siteConfig = {
-  title: "VisActor Next Template",
-  description: "Template for VisActor and Next.js",
+  title: "Rooky le site d'apprentissage",
+  description: "Apprendre à faire du nextjs, avec un template",
 };
 
 export const navigations: Navigation[] = [
