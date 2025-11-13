@@ -1,4 +1,4 @@
-import TicketForm from "./TicketForm";
+import TicketForm from "../../config/TicketForm";
 
 export default function TicketPage() {
   return (
