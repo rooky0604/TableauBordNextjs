@@ -1,61 +1,77 @@
+"use client";
+
 import { AnimatePresence, motion } from "framer-motion";
 import React, { useEffect, useRef, useState } from "react";
 
-// TicketForm.chat.jsx
-// Composant React exporté par défaut. Utilise Tailwind CSS et framer-motion.
-// Copiez-le dans components/TicketForm.jsx et importez-le comme vous le faisiez.
+interface Attachment {
+  name: string;
+  size: number;
+}
+
+interface Message {
+  id: number;
+  from: "user" | "support";
+  text: string;
+  attachment?: Attachment | null;
+}
 
 export default function TicketForm() {
-  const [messages, setMessages] = useState([
+  const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
       from: "support",
       text: "Bonjour ! Comment puis-je vous aider aujourd'hui ?",
     },
   ]);
+
   const [value, setValue] = useState("");
   const [sending, setSending] = useState(false);
-  const fileRef = useRef(null);
-  const listRef = useRef(null);
+
+  const fileRef = useRef<HTMLInputElement | null>(null);
+  const listRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    // Scroll to bottom when messages change
     if (listRef.current) {
       listRef.current.scrollTop = listRef.current.scrollHeight;
     }
   }, [messages]);
 
-  function addMessage(from, text, attachment) {
+  function addMessage(
+    from: "user" | "support",
+    text: string,
+    attachment: Attachment | null = null,
+  ) {
     setMessages((m) => [
       ...m,
       { id: Date.now() + Math.random(), from, text, attachment },
     ]);
   }
 
-  async function handleSend(e) {
-    e?.preventDefault();
+  async function handleSend(e: React.FormEvent) {
+    e.preventDefault();
+
     const text = value.trim();
     const file = fileRef.current?.files?.[0] ?? null;
+
     if (!text && !file) return;
 
-    // add user message immediately
     addMessage(
       "user",
       text || (file ? `Fichier: ${file.name}` : ""),
       file ? { name: file.name, size: file.size } : null,
     );
+
     setValue("");
     if (fileRef.current) fileRef.current.value = "";
 
-    // simulate sending / server response
     setSending(true);
     await new Promise((r) => setTimeout(r, 700));
 
-    // fake support reply
     addMessage(
       "support",
       "Merci — nous avons bien reçu votre ticket. Nous revenons vers vous rapidement.",
     );
+
     setSending(false);
   }
 
@@ -93,13 +109,15 @@ export default function TicketForm() {
                   }`}
                 >
                   <div className="whitespace-pre-wrap text-sm">{m.text}</div>
-                  {m.attachment ? (
+
+                  {m.attachment && (
                     <div className="mt-2 text-xs opacity-90">
                       📎 {m.attachment.name} (
                       {Math.round(m.attachment.size / 1024)} KB)
                     </div>
-                  ) : null}
+                  )}
                 </div>
+
                 <div className="mt-1 text-[11px] text-slate-400">
                   {m.from === "user" ? "Vous" : "Support"}
                 </div>
@@ -114,19 +132,16 @@ export default function TicketForm() {
         >
           <div className="flex items-end gap-3">
             <div className="flex-1">
-              <label htmlFor="ticket-input" className="sr-only">
-                Message
-              </label>
               <textarea
-                id="ticket-input"
                 rows={2}
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
                 placeholder="Écrivez votre message..."
                 className="w-full resize-none rounded-xl border border-slate-200 bg-white p-3 focus:outline-none focus:ring-2 focus:ring-indigo-300 dark:border-slate-800 dark:bg-slate-900 dark:focus:ring-indigo-600"
               />
+
               <div className="mt-2 text-xs text-slate-500">
-                Conseil: décrivez votre problème clairement et joignez une
+                Conseil : décrivez votre problème clairement et joignez une
                 capture d'écran si possible.
               </div>
             </div>
@@ -136,7 +151,6 @@ export default function TicketForm() {
 
               <label
                 htmlFor="file"
-                onClick={() => fileRef.current?.click()}
                 className="inline-flex cursor-pointer select-none items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-800"
               >
                 📎 Joindre
@@ -146,33 +160,12 @@ export default function TicketForm() {
                 type="submit"
                 disabled={sending}
                 className="inline-flex items-center gap-2 rounded-2xl bg-indigo-600 px-4 py-2 font-medium text-white shadow hover:shadow-md disabled:opacity-60"
-                aria-busy={sending}
               >
                 {sending ? "Envoi..." : "Envoyer"}
               </button>
             </div>
           </div>
         </form>
-      </div>
-
-      <div className="mt-5 text-sm text-slate-600">
-        <p>
-          Exemple d'utilisation dans une page (conserver votre import existant):
-        </p>
-        <pre className="mt-2 rounded bg-slate-50 p-3 dark:bg-slate-900">{`import TicketForm from \"../../components/TicketForm\";
-
-export default function TicketPage() {
-  return (
-    <section>
-      <h1>Bienvenue sur la page de ticket</h1>
-      <TicketForm />
-
-      <p>
-        J'aimerai voir comment cela s'affiche sur le site avec des balises html
-      </p>
-    </section>
-  );
-}`}</pre>
       </div>
     </div>
   );
