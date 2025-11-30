@@ -3,6 +3,9 @@
 import {
   Activity,
   AlertCircle,
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
   Calendar,
   CheckCircle,
   Clock,
@@ -17,6 +20,8 @@ import React, { useState } from "react";
 type TicketStatus = "open" | "in-progress" | "closed";
 type TicketPriority = "high" | "medium" | "low";
 type FilterType = "all" | TicketStatus;
+type SortField = "status" | "priority" | "date" | null;
+type SortDirection = "asc" | "desc";
 
 interface Ticket {
   id: string;
@@ -34,6 +39,8 @@ export default function TicketList() {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<FilterType>("all");
   const [darkMode, setDarkMode] = useState<boolean>(true);
+  const [sortField, setSortField] = useState<SortField>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
 
   const tickets: Ticket[] = [
     {
@@ -164,6 +171,53 @@ export default function TicketList() {
     return matchesSearch && matchesStatus;
   });
 
+  // Fonction de tri
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      // Inverser la direction si on clique sur la même colonne
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      // Nouvelle colonne : tri ascendant par défaut
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  };
+
+  // Ordre de priorité pour le tri
+  const priorityOrder: Record<TicketPriority, number> = {
+    high: 3,
+    medium: 2,
+    low: 1,
+  };
+
+  // Ordre de statut pour le tri
+  const statusOrder: Record<TicketStatus, number> = {
+    open: 3,
+    "in-progress": 2,
+    closed: 1,
+  };
+
+  // Appliquer le tri
+  const sortedTickets = [...filteredTickets].sort((a, b) => {
+    if (!sortField) return 0;
+
+    let comparison = 0;
+
+    switch (sortField) {
+      case "priority":
+        comparison = priorityOrder[a.priority] - priorityOrder[b.priority];
+        break;
+      case "status":
+        comparison = statusOrder[a.status] - statusOrder[b.status];
+        break;
+      case "date":
+        comparison = new Date(a.date).getTime() - new Date(b.date).getTime();
+        break;
+    }
+
+    return sortDirection === "asc" ? comparison : -comparison;
+  });
+
   const stats = [
     {
       label: "Nombre de tickets",
@@ -218,6 +272,18 @@ export default function TicketList() {
   const textSecondary = darkMode ? "text-slate-400" : "text-slate-600";
   const inputBg = darkMode ? "bg-slate-800" : "bg-white";
   const inputBorder = darkMode ? "border-slate-700" : "border-slate-300";
+
+  // Fonction pour afficher l'icône de tri
+  const getSortIcon = (field: SortField) => {
+    if (sortField !== field) {
+      return <ArrowUpDown className="h-4 w-4 opacity-30" />;
+    }
+    return sortDirection === "asc" ? (
+      <ArrowUp className="h-4 w-4" />
+    ) : (
+      <ArrowDown className="h-4 w-4" />
+    );
+  };
 
   return (
     <div className={`min-h-screen ${bgClass} transition-colors duration-200`}>
@@ -308,14 +374,22 @@ export default function TicketList() {
                     Ticket
                   </th>
                   <th
-                    className={`px-6 py-3 text-left text-xs font-medium ${textSecondary} uppercase tracking-wider`}
+                    className={`px-6 py-3 text-left text-xs font-medium ${textSecondary} cursor-pointer uppercase tracking-wider hover:${textPrimary} transition-colors`}
+                    onClick={() => handleSort("status")}
                   >
-                    Statut
+                    <div className="flex items-center gap-2">
+                      Statut
+                      {getSortIcon("status")}
+                    </div>
                   </th>
                   <th
-                    className={`px-6 py-3 text-left text-xs font-medium ${textSecondary} uppercase tracking-wider`}
+                    className={`px-6 py-3 text-left text-xs font-medium ${textSecondary} cursor-pointer uppercase tracking-wider hover:${textPrimary} transition-colors`}
+                    onClick={() => handleSort("priority")}
                   >
-                    Priorité
+                    <div className="flex items-center gap-2">
+                      Priorité
+                      {getSortIcon("priority")}
+                    </div>
                   </th>
                   <th
                     className={`px-6 py-3 text-left text-xs font-medium ${textSecondary} uppercase tracking-wider`}
@@ -323,9 +397,13 @@ export default function TicketList() {
                     Assigné à
                   </th>
                   <th
-                    className={`px-6 py-3 text-left text-xs font-medium ${textSecondary} uppercase tracking-wider`}
+                    className={`px-6 py-3 text-left text-xs font-medium ${textSecondary} cursor-pointer uppercase tracking-wider hover:${textPrimary} transition-colors`}
+                    onClick={() => handleSort("date")}
                   >
-                    Date
+                    <div className="flex items-center gap-2">
+                      Date
+                      {getSortIcon("date")}
+                    </div>
                   </th>
                   <th
                     className={`px-6 py-3 text-right text-xs font-medium ${textSecondary} uppercase tracking-wider`}
@@ -335,7 +413,7 @@ export default function TicketList() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800">
-                {filteredTickets.length === 0 ? (
+                {sortedTickets.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="px-6 py-12 text-center">
                       <AlertCircle
@@ -345,7 +423,7 @@ export default function TicketList() {
                     </td>
                   </tr>
                 ) : (
-                  filteredTickets.map((ticket) => {
+                  sortedTickets.map((ticket) => {
                     const statusConfig = getStatusConfig(ticket.status);
                     const priorityConfig = getPriorityConfig(ticket.priority);
 
