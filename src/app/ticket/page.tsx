@@ -14,12 +14,28 @@ import {
 } from "lucide-react";
 import React, { useState } from "react";
 
-export default function TicketList() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [darkMode, setDarkMode] = useState(true);
+type TicketStatus = "open" | "in-progress" | "closed";
+type TicketPriority = "high" | "medium" | "low";
+type FilterType = "all" | TicketStatus;
 
-  const tickets = [
+interface Ticket {
+  id: string;
+  title: string;
+  description: string;
+  status: TicketStatus;
+  priority: TicketPriority;
+  author: string;
+  date: string;
+  category: string;
+  assignee: string;
+}
+
+export default function TicketList() {
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<FilterType>("all");
+  const [darkMode, setDarkMode] = useState<boolean>(true);
+
+  const tickets: Ticket[] = [
     {
       id: "TK-001",
       title: "Bug dans le formulaire de connexion",
@@ -90,7 +106,7 @@ export default function TicketList() {
     },
   ];
 
-  const getStatusConfig = (status) => {
+  const getStatusConfig = (status: TicketStatus) => {
     const configs = {
       open: {
         label: "Ouvert",
@@ -117,7 +133,7 @@ export default function TicketList() {
     return configs[status];
   };
 
-  const getPriorityConfig = (priority) => {
+  const getPriorityConfig = (priority: TicketPriority) => {
     const configs = {
       high: {
         label: "Haute",
@@ -158,7 +174,7 @@ export default function TicketList() {
         ? "bg-blue-500/10 hover:bg-blue-500/20"
         : "bg-blue-50 hover:bg-blue-100",
       borderColor: darkMode ? "border-blue-500/30" : "border-blue-200",
-      filter: "all",
+      filter: "all" as FilterType,
     },
     {
       label: "Ouverts",
@@ -169,7 +185,7 @@ export default function TicketList() {
         ? "bg-blue-500/10 hover:bg-blue-500/20"
         : "bg-blue-50 hover:bg-blue-100",
       borderColor: darkMode ? "border-blue-500/30" : "border-blue-200",
-      filter: "open",
+      filter: "open" as FilterType,
     },
     {
       label: "En cours",
@@ -180,7 +196,7 @@ export default function TicketList() {
         ? "bg-amber-500/10 hover:bg-amber-500/20"
         : "bg-amber-50 hover:bg-amber-100",
       borderColor: darkMode ? "border-amber-500/30" : "border-amber-200",
-      filter: "in-progress",
+      filter: "in-progress" as FilterType,
     },
     {
       label: "Fermés",
@@ -191,7 +207,7 @@ export default function TicketList() {
         ? "bg-emerald-500/10 hover:bg-emerald-500/20"
         : "bg-emerald-50 hover:bg-emerald-100",
       borderColor: darkMode ? "border-emerald-500/30" : "border-emerald-200",
-      filter: "closed",
+      filter: "closed" as FilterType,
     },
   ];
 
@@ -321,7 +337,7 @@ export default function TicketList() {
               <tbody className="divide-y divide-slate-800">
                 {filteredTickets.length === 0 ? (
                   <tr>
-                    <td colSpan="6" className="px-6 py-12 text-center">
+                    <td colSpan={6} className="px-6 py-12 text-center">
                       <AlertCircle
                         className={`h-12 w-12 ${textSecondary} mx-auto mb-3`}
                       />
